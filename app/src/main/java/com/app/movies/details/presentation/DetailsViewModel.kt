@@ -1,10 +1,9 @@
 package com.app.movies.details.presentation
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.movies.details.domain.repository.VideoListRepository
+import com.app.movies.details.domain.repository.MovieDetailsRepository
 import com.app.movies.moviesList.domain.repository.MovieListRepository
 import com.app.movies.moviesList.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val repository: MovieListRepository,
-    private val videoListRepository: VideoListRepository,
+    private val movieDetailsRepository: MovieDetailsRepository,
     savedStateHandle: SavedStateHandle
 ):ViewModel(){
 
@@ -27,6 +26,7 @@ class DetailsViewModel @Inject constructor(
 
     init {
         getMovie(movieId?:-1)
+        getImages(movieId?:-1)
     }
 
     private fun getMovie(movieId: Int) {
@@ -52,7 +52,7 @@ class DetailsViewModel @Inject constructor(
                 }
 
             }
-            videoListRepository.getVideosList(
+            movieDetailsRepository.getVideosList(
                 movieId,
                 type="movie"
             ).collect{videoResult->
@@ -66,11 +66,40 @@ class DetailsViewModel @Inject constructor(
                     is Resource.Success -> {
                         videoResult.data?.let { videos ->
                             _detailsState.update { it.copy(videos = videos ) }
-                            Log.d("Videos",videos.toString())
                         }
                     }
                 }
 
+            }
+        }
+    }
+
+    fun onEvent(event: DetailsScreenUiEvent){
+        when(event){
+            is DetailsScreenUiEvent.ChangeTab -> {
+                _detailsState.update { it.copy(selectedImageIndex = event.index) }
+            }
+        }
+    }
+    private fun getImages(movieId: Int){
+        viewModelScope.launch {
+            movieDetailsRepository.getImages(
+                referenceId = movieId,
+                type = "movie"
+            ).collect{imageResult ->
+                when(imageResult)   {
+                    is Resource.Error -> {
+                        _detailsState.update { it.copy(isLoading = false) }
+                    }
+                    is Resource.Loading -> {
+                        _detailsState.update { it.copy(isLoading = imageResult.isLoading) }
+                    }
+                    is Resource.Success -> {
+                        imageResult.data?.let { images ->
+                            _detailsState.update { it.copy(images = images ) }
+                        }
+                    }
+                }
             }
         }
     }

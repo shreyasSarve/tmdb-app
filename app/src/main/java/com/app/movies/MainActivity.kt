@@ -1,9 +1,11 @@
 package com.app.movies
 
 import Screen
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -27,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -64,7 +67,8 @@ class MainActivity : ComponentActivity() {
                             ){
                             val viewModel:DetailsViewModel = hiltViewModel()
                             DetailsScreen(
-                                detailsState = viewModel.detailsState.collectAsState().value
+                                detailsState = viewModel.detailsState.collectAsState().value,
+                                onEvent = viewModel::onEvent,
                             )
                         }
                     }

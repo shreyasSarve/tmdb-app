@@ -1,5 +1,7 @@
 package com.app.movies.details.presentation.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.app.movies.moviesList.domain.model.Movie
 import com.app.movies.moviesList.domain.util.RatingBar
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RatingWithVotes(
     movie: Movie
@@ -26,7 +29,8 @@ fun RatingWithVotes(
         verticalAlignment = Alignment.CenterVertically
     ) {
         RatingBar(
-            rating = movie.vote_average
+            rating = movie.vote_average,
+            released = movie.isRelease
         )
         Spacer(modifier = Modifier.width(5.dp))
         Column {

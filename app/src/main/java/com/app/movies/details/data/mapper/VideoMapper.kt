@@ -1,7 +1,7 @@
 package com.app.movies.details.data.mapper
 
 import com.app.movies.details.data.local.VideoEntity
-import com.app.movies.details.data.remote.respond.VideoDTO
+import com.app.movies.details.data.remote.respond.video.VideoDTO
 import com.app.movies.details.domain.model.Video
 
 

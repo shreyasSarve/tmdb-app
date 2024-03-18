@@ -1,4 +1,4 @@
-package com.app.movies.details.data.remote.respond
+package com.app.movies.details.data.remote.respond.video
 
 data class VideoDTO(
     val id: String,

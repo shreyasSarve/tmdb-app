@@ -3,10 +3,12 @@ package com.app.movies.details.data.repository
 import android.net.http.HttpException
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import com.app.movies.details.data.mapper.toImages
 import com.app.movies.details.data.mapper.toVideo
 import com.app.movies.details.data.mapper.toVideoEntity
+import com.app.movies.details.domain.model.Images
 import com.app.movies.details.domain.model.Video
-import com.app.movies.details.domain.repository.VideoListRepository
+import com.app.movies.details.domain.repository.MovieDetailsRepository
 import com.app.movies.moviesList.data.local.movie.MovieDatabase
 import com.app.movies.moviesList.data.remote.MoviesApi
 import com.app.movies.moviesList.domain.util.Resource
@@ -15,10 +17,10 @@ import kotlinx.coroutines.flow.flow
 import java.io.IOException
 import javax.inject.Inject
 
-class VideoListRepositoryImpl @Inject constructor(
+class MovieDetailsRepositoryImpl @Inject constructor(
     private val moviesApi: MoviesApi,
     private val movieDatabase: MovieDatabase
-): VideoListRepository {
+): MovieDetailsRepository {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override suspend fun getVideosList(
         referenceId: Int,
@@ -83,5 +85,52 @@ class VideoListRepositoryImpl @Inject constructor(
             )
             emit(Resource.Loading(isLoading = false))
         }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    override suspend fun getImages(
+        referenceId: Int,
+        type: String
+    ): Flow<Resource<Images>> {
+       return flow {
+           emit(Resource.Loading(isLoading = true))
+
+           val imagesFromRemote = try {
+               moviesApi.getImages(
+                   id = referenceId,
+                   type = type
+               )
+           }catch (e:IOException){
+                emit(
+                    Resource.Error(
+                        message = "Error occurred while loading videos"
+                    )
+                )
+                emit(Resource.Loading(isLoading = false))
+                return@flow
+            }catch (e:HttpException){
+                emit(
+                    Resource.Error(
+                        message = "Error occurred while loading videos"
+                    )
+                )
+                emit(Resource.Loading(isLoading = false))
+                return@flow
+            }catch (e:Exception){
+                emit(
+                    Resource.Error(
+                        message = "Error occurred while loading videos"
+                    )
+                )
+                emit(Resource.Loading(isLoading = false))
+                return@flow
+            }
+           emit(
+               Resource.Success(
+                     data = imagesFromRemote.toImages()
+                )
+           )
+           emit(Resource.Loading(isLoading = false))
+       }
     }
 }
