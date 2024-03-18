@@ -1,52 +1,92 @@
 package com.app.movies.moviesList.domain.util
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.StarHalf
-import androidx.compose.material.icons.rounded.StarOutline
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.app.movies.ui.theme.MoviesTheme
+import com.app.movies.util.RatingUtils
 
 @Composable
 fun RatingBar(
     modifier: Modifier = Modifier,
-    starsModifier: Modifier = Modifier,
     rating: Double = 0.0,
-    stars: Int = 5,
-    starsColor: Color = Color.Yellow,
+    released: Boolean = true,
+    maxRating: Double = RatingUtils.MAX_RATINGS
 ) {
 
-    val filledStars = kotlin.math.floor(rating).toInt()
-    val unfilledStars = (stars - kotlin.math.ceil(rating)).toInt()
-    val halfStar = !(rating.rem(1).equals(0.0))
+    assert(rating<=maxRating){
+        "Error"
+    }
+    val ratingColor = RatingUtils.getRatingColor(
+        rating= rating,
+        released = released
+    )
+    val progress = rating/maxRating
+    val formattedRating = RatingUtils.getFormattedRating(
+        rating = rating,
+        released = released
+    )
+    Box(
+        modifier = modifier
+            .border(
+                width = 2.dp,
+                color = Color.Black,
+                shape = CircleShape
+            )
+            .background(Color.Black, CircleShape)
+            .padding(1.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            progress = progress.toFloat(),
+            color = ratingColor,
+            strokeCap = StrokeCap.Round,
+            trackColor = ratingColor.copy(0.3f),
+            strokeWidth = 5.dp,
+        )
+        Text(
+            text = formattedRating,
+            color = Color.White,
+            modifier = Modifier
+                .align(Alignment.Center),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
 
-    Row(modifier = modifier) {
-        repeat(filledStars) {
-            Icon(
-                modifier = starsModifier,
-                imageVector = Icons.Rounded.Star,
-                contentDescription = null,
-                tint = starsColor
-            )
-        }
-        if (halfStar) {
-            Icon(
-                modifier = starsModifier,
-                imageVector = Icons.Rounded.StarHalf,
-                contentDescription = null,
-                tint = starsColor
-            )
-        }
-        repeat(unfilledStars) {
-            Icon(
-                modifier = starsModifier,
-                imageVector = Icons.Rounded.StarOutline,
-                contentDescription = null,
-                tint = starsColor
-            )
+
+@Preview
+@Composable
+fun RatingBarPreview(){
+    MoviesTheme {
+        Box(
+            modifier = Modifier
+                .height(100.dp)
+                .width(80.dp)
+        ){
+        RatingBar(
+            rating = 5.123,
+            modifier = Modifier
+                .size(30.dp)
+                .align(Alignment.BottomStart)
+        )
         }
     }
 }

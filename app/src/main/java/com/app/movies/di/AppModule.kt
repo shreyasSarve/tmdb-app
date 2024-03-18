@@ -42,10 +42,13 @@ object AppModule {
     fun providerMovieDatabase(
         app:Application
     ) :MovieDatabase {
-        return Room.databaseBuilder(
+        return Room
+            .databaseBuilder(
             app,
             MovieDatabase::class.java,
             "movie_database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

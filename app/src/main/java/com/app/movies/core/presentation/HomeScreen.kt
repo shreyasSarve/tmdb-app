@@ -86,16 +86,16 @@ fun HomeScreen(
             ){
                 composable(Screen.PopularMovieList.route){
                     PopularMoviesScreen(
-                        navController  = navController,
                         movieState = movieState,
-                        onEvent = viewModel::onEvent
+                        onEvent = viewModel::onEvent,
+                        onNavigate = {route-> navController.navigate(route)}
                     )
                 }
                 composable(Screen.UpcomingMovieList.route){
                     UpcomingMoviesScreen(
-                        navController  = navController,
                         movieState = movieState,
-                        onEvent = viewModel::onEvent
+                        onEvent = viewModel::onEvent,
+                        onNavigate = {route-> navController.navigate(route)}
                     )
                 }
             }

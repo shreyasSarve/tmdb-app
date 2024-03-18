@@ -1,5 +1,6 @@
 package com.app.movies.moviesList.data.remote
 
+import com.app.movies.details.data.remote.respond.VideoListDTO
 import com.app.movies.moviesList.data.remote.respond.MoviesListDTO
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -13,6 +14,13 @@ interface MoviesApi {
         @Query("page") page:Int,
         @Query("api_key") apiKey:String= API_KEY
     ) : MoviesListDTO
+
+    @GET("{type}/{id}/videos")
+    suspend fun getVideos(
+        @Path("type") type:String,
+        @Path("id") id:Int,
+        @Query("api_key") apiKey: String= API_KEY
+    )  : VideoListDTO
 
     companion object {
         const val BASE_URL = "https://api.themoviedb.org/3/"

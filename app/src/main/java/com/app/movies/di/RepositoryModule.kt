@@ -1,5 +1,7 @@
 package com.app.movies.di
 
+import com.app.movies.details.data.repository.VideoListRepositoryImpl
+import com.app.movies.details.domain.repository.VideoListRepository
 import com.app.movies.moviesList.data.repository.MovieListRepositoryImpl
 import com.app.movies.moviesList.domain.repository.MovieListRepository
 import dagger.Binds
@@ -19,5 +21,9 @@ abstract class RepositoryModule {
         movieListRepositoryImpl: MovieListRepositoryImpl
     ): MovieListRepository
 
-
+    @Binds
+    @Singleton
+    abstract fun bindVideoRepository(
+        videoListRepository: VideoListRepositoryImpl
+    ): VideoListRepository
 }

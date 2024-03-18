@@ -1,8 +1,10 @@
 package com.app.movies.details.presentation
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.movies.details.domain.repository.VideoListRepository
 import com.app.movies.moviesList.domain.repository.MovieListRepository
 import com.app.movies.moviesList.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val repository: MovieListRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val videoListRepository: VideoListRepository,
+    savedStateHandle: SavedStateHandle
 ):ViewModel(){
 
     private val movieId = savedStateHandle.get<Int>("movieId")
@@ -44,6 +47,26 @@ class DetailsViewModel @Inject constructor(
                     is Resource.Success -> {
                         movieResult.data?.let { movie ->
                             _detailsState.update { it.copy(movie = movie) }
+                        }
+                    }
+                }
+
+            }
+            videoListRepository.getVideosList(
+                movieId,
+                type="movie"
+            ).collect{videoResult->
+                when(videoResult)   {
+                    is Resource.Error -> {
+                        _detailsState.update { it.copy(isLoading = false) }
+                    }
+                    is Resource.Loading -> {
+                        _detailsState.update { it.copy(isLoading = videoResult.isLoading) }
+                    }
+                    is Resource.Success -> {
+                        videoResult.data?.let { videos ->
+                            _detailsState.update { it.copy(videos = videos ) }
+                            Log.d("Videos",videos.toString())
                         }
                     }
                 }

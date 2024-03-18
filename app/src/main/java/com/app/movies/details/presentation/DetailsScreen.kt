@@ -1,24 +1,19 @@
 package com.app.movies.details.presentation
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ImageNotSupported
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,76 +21,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Size
 import com.app.movies.R
+import com.app.movies.core.components.NetworkImageLoader
+import com.app.movies.details.presentation.components.VideoTile
 import com.app.movies.moviesList.data.remote.MoviesApi
 import com.app.movies.moviesList.domain.util.RatingBar
+import com.app.movies.util.VideoPlayerUrls
 
 @Composable
 fun DetailsScreen(
     viewModel: DetailsViewModel = hiltViewModel(),
 ) {
     val detailsState = viewModel.detailsState.collectAsState().value
+    val backDropUri = (MoviesApi.IMAGE_BASE_URL + detailsState.movie?.backdrop_path).toUri()
+    val posterImageUri = (MoviesApi.IMAGE_BASE_URL + detailsState.movie?.poster_path).toUri()
 
-    val backDropImageState = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(MoviesApi.IMAGE_BASE_URL + detailsState.movie?.backdrop_path).size(Size.ORIGINAL)
-            .build()
-    ).state
 
-    val posterImageState = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(MoviesApi.IMAGE_BASE_URL + detailsState.movie?.poster_path).size(Size.ORIGINAL)
-            .build()
-    ).state
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        when (backDropImageState) {
-            AsyncImagePainter.State.Empty -> Unit
-            is AsyncImagePainter.State.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(6.dp)
-                        .height(250.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ImageNotSupported,
-                        contentDescription = detailsState.movie?.title
-                    )
-                }
-            }
-
-            is AsyncImagePainter.State.Loading -> Unit
-            is AsyncImagePainter.State.Success -> {
-                Image(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(6.dp)
-                        .height(220.dp),
-                    painter = backDropImageState.painter,
-                    contentDescription = detailsState.movie?.title,
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-            }
-
-        }
+        NetworkImageLoader(
+            uri = backDropUri,
+            contentDescription = detailsState.movie?.title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+                .height(220.dp)
+        )
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
@@ -106,41 +66,16 @@ fun DetailsScreen(
             Box(
                 modifier = Modifier
                     .width(160.dp)
-                    .height(140.dp)
+                    .height(240.dp)
             ) {
-                when (posterImageState) {
-                    AsyncImagePainter.State.Empty -> Unit
-                    is AsyncImagePainter.State.Error -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(6.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ImageNotSupported,
-                                contentDescription = detailsState.movie?.title
-                            )
-                        }
-                    }
-
-                    is AsyncImagePainter.State.Loading -> Unit
-                    is AsyncImagePainter.State.Success -> {
-                        Image(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(6.dp)
-                                .clip(RoundedCornerShape(6.dp)),
-                            painter = posterImageState.painter,
-                            contentDescription = detailsState.movie?.title,
-                            contentScale = ContentScale.Crop
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                    }
-
-                }
+                NetworkImageLoader(
+                    uri = posterImageUri,
+                    contentDescription = detailsState.movie?.title,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(6.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                )
             }
             detailsState.movie?.let { movie ->
 
@@ -151,27 +86,27 @@ fun DetailsScreen(
                     Text(
                         modifier = Modifier.padding(start = 16.dp),
                         text = movie.title,
-                        fontSize = 19.sp,
+                        fontSize = 23.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         modifier = Modifier
-                            .padding(start = 16.dp)
+                            .padding(start = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         RatingBar(
-                            starsModifier = Modifier.size(18.dp),
-                            rating = movie.vote_average / 2
+                            rating = movie.vote_average
                         )
                         Text(
                             text = movie.vote_average.toString().take(3),
                             modifier = Modifier.padding(16.dp),
-                            color = Color.LightGray,
-                            fontSize = 14.sp,
+                            color = Color.White,
+                            fontSize = 19.sp,
                             maxLines = 1,
                         )
                     }
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         modifier = Modifier.padding(start = 16.dp),
                         text = stringResource(R.string.language) + movie.original_language,
@@ -209,6 +144,51 @@ fun DetailsScreen(
                 fontSize = 16.sp,
             )
             Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        DisplayVideos(
+            detailsState = detailsState
+        )
+    }
+
+
+}
+
+@Composable
+fun DisplayVideos(
+    detailsState :DetailsState
+){
+    Text(
+        modifier = Modifier.padding(start = 16.dp),
+        text = stringResource(R.string.videos),
+        fontSize = 19.sp,
+        fontWeight = FontWeight.SemiBold
+    )
+
+    detailsState.videos?.let { videos ->
+        if(videos.isEmpty()) return@let
+        val ytVideos = videos.filter {video->
+            return@filter video.site.lowercase() == VideoPlayerUrls.YT
+        }
+        LazyRow(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentPadding = PaddingValues(
+                horizontal = 20.dp
+            )
+        ) {
+            items(ytVideos.size){index ->
+                Box(modifier = Modifier.padding(
+                    horizontal = 10.dp
+                )
+                ) {
+                    VideoTile(
+                        video = ytVideos[index]
+                    )
+                }
+            }
         }
     }
 }

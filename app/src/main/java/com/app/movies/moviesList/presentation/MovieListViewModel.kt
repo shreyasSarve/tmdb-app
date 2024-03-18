@@ -1,6 +1,5 @@
 package com.app.movies.moviesList.presentation
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.movies.moviesList.domain.repository.MovieListRepository
@@ -17,7 +16,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieListViewModel @Inject constructor(
   private val repository: MovieListRepository,
-    private val application: Application
 ) :ViewModel() {
 
     private var _mainState = MutableStateFlow(MovieListState())
@@ -130,7 +128,7 @@ class MovieListViewModel @Inject constructor(
                                 movieState.copy(
                                     upcomingMovieList =
                                     movieState.upcomingMovieList + data.shuffled(),
-                                    popularMovieListPage = movieState.upcomingMovieListPage + 1
+                                    upcomingMovieListPage = movieState.upcomingMovieListPage + 1
                                 )
                             }
                         }

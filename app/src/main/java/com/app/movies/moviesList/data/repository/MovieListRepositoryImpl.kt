@@ -82,13 +82,12 @@ class MovieListRepositoryImpl @Inject constructor(
             val movieEntities = movieListRemote.results.map {
                 it.toMovieEntity(category)
             }
-            movieDatabase.movieDao.upsertMoviesList(movieEntities)
-
             emit(
                 Resource.Success(
                     data = movieEntities.map { it.toMovie(category) }
                 )
             )
+            movieDatabase.movieDao.upsertMoviesList(movieEntities)
             emit(Resource.Loading(isLoading = false))
 
         }
