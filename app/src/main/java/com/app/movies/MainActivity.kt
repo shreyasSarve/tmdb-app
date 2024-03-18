@@ -9,8 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.app.movies.core.presentation.HomeScreen
 import com.app.movies.details.presentation.DetailsScreen
+import com.app.movies.details.presentation.DetailsViewModel
 import com.app.movies.ui.theme.MoviesTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,7 +62,10 @@ class MainActivity : ComponentActivity() {
                             )
 
                             ){
-                            DetailsScreen()
+                            val viewModel:DetailsViewModel = hiltViewModel()
+                            DetailsScreen(
+                                detailsState = viewModel.detailsState.collectAsState().value
+                            )
                         }
                     }
                 }
